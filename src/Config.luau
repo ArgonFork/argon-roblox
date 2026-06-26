@@ -1,6 +1,6 @@
 local plugin = script:FindFirstAncestorWhichIsA("Plugin")
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 
 local Util = require(Argon.Util)
 local Log = require(Argon.Log)

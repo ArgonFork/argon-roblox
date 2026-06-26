@@ -1,7 +1,7 @@
 local plugin = script:FindFirstAncestorWhichIsA("Plugin")
 local Studio = settings().Studio
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 
 local Fusion = require(Argon.Packages.Fusion)
 

@@ -1,6 +1,6 @@
 local ScriptEditorService = game:GetService("ScriptEditorService")
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 
 local Promise = require(Argon.Packages.Promise)
 

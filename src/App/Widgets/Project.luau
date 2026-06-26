@@ -1,6 +1,6 @@
 local StudioService = game:GetService("StudioService")
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 local App = Argon.App
 local Components = App.Components
 

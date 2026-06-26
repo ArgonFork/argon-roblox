@@ -1,6 +1,6 @@
 local HttpService = game:GetService("HttpService")
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 
 local Promise = require(Argon.Packages.Promise)
 local MsgPack = require(Argon.Lib.MsgPack)

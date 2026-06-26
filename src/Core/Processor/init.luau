@@ -1,4 +1,4 @@
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 
 local Dom = require(Argon.Lib.Dom)
 

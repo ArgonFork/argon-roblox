@@ -1,6 +1,6 @@
 --!native
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 
 local Types = require(Argon.Types)
 

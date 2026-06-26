@@ -1,7 +1,7 @@
 [package]
 name = "argon-rbx/argon"
 authors = ["Dervex"]
-description = "Full featured tool for Roblox development"
+description = "Argon Extended - full featured tool for Roblox development"
 registry = "https://github.com/UpliftGames/wally-index"
 license = "Apache-2.0"
 version = "2.0.23"

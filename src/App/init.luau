@@ -3,7 +3,7 @@ local TweenService = game:GetService("TweenService")
 
 local plugin = script:FindFirstAncestorWhichIsA("Plugin")
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 local Packages = Argon.Packages
 local Helpers = Argon.Helpers
 
@@ -90,8 +90,8 @@ function App.new()
 		Toolbar = Toolbar {
 			Name = "Dervex Tools",
 		},
-		Name = "Argon",
-		ToolTip = "Open Argon UI",
+		Name = "Argon Extended",
+		ToolTip = "Open Argon Extended UI",
 		Image = self.icon,
 		[OnEvent "Click"] = function()
 			isOpen:set(not peek(isOpen))
@@ -99,7 +99,7 @@ function App.new()
 	}
 
 	Widget {
-		Name = "Argon",
+		Name = "Argon Extended",
 		MinimumSize = peek(self.rootSize),
 		Enabled = isOpen,
 		[OnChange "Enabled"] = function(isEnabled)

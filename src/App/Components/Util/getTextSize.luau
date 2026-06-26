@@ -1,6 +1,6 @@
 local TextService = game:GetService("TextService")
 
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 local App = Argon.App
 
 local Theme = require(App.Theme)

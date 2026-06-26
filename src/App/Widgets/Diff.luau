@@ -1,4 +1,4 @@
-local Argon = script:FindFirstAncestor("Argon")
+local Argon = script:FindFirstAncestor("Argon Extended")
 local App = Argon.App
 local Widgets = App.Widgets
 local Components = App.Components
