@@ -158,6 +158,12 @@ local SETTINGS_DATA: { { Title: string, Settings: { SettingData } } } = {
 				Name = "Override Packages",
 				Description = "Whether writing changes to the instances affected by <b>PackageLink</b> should be allowed",
 			},
+			{
+				Setting = "Transport",
+				Name = "Transport Protocol",
+				Description = "Connection transport to use. WebSocket gives lower latency but requires Studio 2024+ build",
+				Options = { "http", "websocket" },
+			},
 		},
 	},
 }

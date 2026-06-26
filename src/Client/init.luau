@@ -6,8 +6,11 @@ local Types = require(Argon.Types)
 local Place = require(Argon.Place)
 local Log = require(Argon.Log)
 
+local Config = require(Argon.Config)
+
 local Http = require(script.Http)
 local Error = require(script.Error)
+local WebSocket = require(script.WebSocket)
 
 local function generateId(): number
 	return math.floor(math.random() * 10 ^ 9)
@@ -17,6 +20,14 @@ local Client = {}
 Client.__index = Client
 
 function Client.new(host: string, port: number, https: boolean)
+	-- Use WS when Studio has the API and the transport config allows it.
+	-- Config defaults to "http"; set to "websocket" to opt in.
+	if Config:get("Transport") == "websocket" and WebSocket.isAvailable() then
+		Log.debug("Client: using WebSocket transport")
+		return WebSocket.new(host, port)
+	end
+
+	Log.debug("Client: using HTTP transport")
 	local self = setmetatable({}, Client)
 
 	self.isSubscribed = false

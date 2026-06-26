@@ -24,6 +24,7 @@ export type Setting =
 	| "ChangesThreshold"
 	| "LogLevel"
 	| "OverridePackages"
+	| "Transport"
 
 type Config = {
 	__configs: { [Level]: { [Setting]: any } },
@@ -54,6 +55,7 @@ local DEFAULTS = {
 	ChangesThreshold = 5,
 	LogLevel = "Warn",
 	OverridePackages = true,
+	Transport = "http",
 }
 
 local CONFIGS_ORDERED = { "Place", "Game", "Global" }
