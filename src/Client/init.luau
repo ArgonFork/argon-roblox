@@ -22,12 +22,16 @@ Client.__index = Client
 function Client.new(host: string, port: number, https: boolean)
 	-- Use WS when Studio has the API and the transport config allows it.
 	-- Config defaults to "http"; set to "websocket" to opt in.
-	if Config:get("Transport") == "websocket" and WebSocket.isAvailable() then
-		Log.debug("Client: using WebSocket transport")
-		return WebSocket.new(host, port)
+	if Config:get("Transport") == "websocket" then
+		if WebSocket.isAvailable() then
+			Log.warn("Argon: using WebSocket transport")
+			return WebSocket.new(host, port)
+		else
+			Log.warn("Argon: WebSocket API not available in this Studio build, falling back to HTTP")
+		end
 	end
 
-	Log.debug("Client: using HTTP transport")
+	Log.warn("Argon: using HTTP transport")
 	local self = setmetatable({}, Client)
 
 	self.isSubscribed = false

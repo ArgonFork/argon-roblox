@@ -49,10 +49,7 @@ WebSocket.__index = WebSocket
 -- Check if Studio has the WebSocket API (added 2024).
 -- See: https://devforum.roblox.com/t/websockets-support-in-studio-is-now-available/4021932
 function WebSocket.isAvailable(): boolean
-	local ok, result = pcall(function()
-		return typeof((HttpService :: any).WebSocket)
-	end)
-	return ok and result == "function"
+	return typeof(HttpService.CreateWebStreamClient) == "function"
 end
 
 function WebSocket.new(host: string, port: number)
@@ -68,6 +65,7 @@ function WebSocket.new(host: string, port: number)
 	self._ws = nil :: any
 	self._connected = false
 	self._gracefulClose = false
+	self._reconnecting = false
 	self._nextId = 1
 	self._pending = {} :: { [number]: { resolve: (any) -> (), reject: (any) -> () } }
 	self._pushQueue = {} :: { { kind: string, data: any? } }
@@ -90,7 +88,10 @@ function WebSocket:_connectAndSubscribe(): Promise.Promise
 	return Promise.new(function(resolve, reject)
 		local url = string.format("ws://%s:%d/ws", self.host, self.port)
 		local ok, ws = pcall(function()
-			return (HttpService :: any):WebSocket(url)
+			return HttpService:CreateWebStreamClient(
+				Enum.WebStreamClientType.WebSocket,
+				{ Url = url }
+			)
 		end)
 
 		if not ok then
@@ -100,11 +101,11 @@ function WebSocket:_connectAndSubscribe(): Promise.Promise
 		self._ws = ws
 		self._connected = true
 
-		ws.OnMessage:Connect(function(text: string)
+		ws.MessageReceived:Connect(function(text: string)
 			self:_onMessage(text)
 		end)
 
-		ws.OnClose:Connect(function()
+		ws.Closed:Connect(function()
 			self:_onClose()
 		end)
 
@@ -117,7 +118,9 @@ function WebSocket:_connectAndSubscribe(): Promise.Promise
 			clientId = self.clientId,
 			name = self.placeName,
 		})
+		Log.warn("WS sending subscribe id=" .. tostring(id) .. " len=" .. tostring(#frame))
 		ws:Send(frame)
+		Log.warn("WS subscribe sent")
 	end)
 end
 
@@ -178,12 +181,14 @@ function WebSocket:_onClose()
 		return
 	end
 
-	-- Unexpected drop: keep push waiters alive and attempt transparent reconnect.
-	-- read() callers stay suspended; they resume once the new connection is up.
-	Log.warn("WS connection lost, reconnecting...")
-	task.spawn(function()
-		self:_reconnect(0)
-	end)
+	-- Unexpected drop: only start one reconnect chain; recursive attempts handle the rest.
+	if not self._reconnecting then
+		self._reconnecting = true
+		Log.warn("WS connection lost, reconnecting...")
+		task.spawn(function()
+			self:_reconnect(0)
+		end)
+	end
 end
 
 function WebSocket:_reconnect(attempt: number)
@@ -199,6 +204,7 @@ function WebSocket:_reconnect(attempt: number)
 		end
 		self._pushWaiters = {}
 		self.isSubscribed = false
+		self._reconnecting = false
 		return
 	end
 
@@ -220,6 +226,7 @@ function WebSocket:_reconnect(attempt: number)
 
 	if ok then
 		self.isSubscribed = true
+		self._reconnecting = false
 		Log.debug("WS reconnected successfully")
 		-- Push waiters are still in _pushWaiters; they will resolve on next push
 	else
@@ -289,7 +296,7 @@ function WebSocket:unsubscribe(): Promise.Promise
 		self._gracefulClose = true -- prevent reconnect on the WS close that follows
 		self.isSubscribed = false
 		pcall(function()
-			self._ws:Close()
+			self._ws:Disconnect()
 		end)
 	end):catch(function(err)
 		if err == Error.ConnectionClosed then

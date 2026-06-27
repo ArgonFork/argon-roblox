@@ -46,7 +46,8 @@ function Error.new(err: Error, ...): Error
 	err = table.clone(err)
 
 	for i, v in { ... } do
-		err.message = err.message:gsub("$" .. i, Util.stringify(v))
+		local s = Util.stringify(v)
+		err.message = err.message:gsub("$" .. i, function() return s end)
 	end
 
 	return err
