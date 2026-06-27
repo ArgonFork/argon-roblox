@@ -105,12 +105,12 @@ local SETTINGS_DATA: { { Title: string, Settings: { SettingData } } } = {
 			{
 				Setting = "SyncbackProperties",
 				Name = "Syncback Properties",
-				Description = "Whether all properties should be synced back to the server <b>(does not affect scripts)</b>",
+				Description = "Sync non-script instance properties back to the filesystem (scripts always sync their source)",
 			},
 			{
 				Setting = "OnlyCodeMode",
 				Name = "Only Code Mode",
-				Description = "Syncback only scripts and instances that have descendant scripts",
+				Description = "Restrict syncback to scripts and their container instances only — disabling syncs all instance types",
 			},
 			{
 				Setting = "OpenInEditor",
