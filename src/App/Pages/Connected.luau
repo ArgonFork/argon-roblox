@@ -125,7 +125,7 @@ return function(props: Props): { Instance }
 					LayoutOrder = 2,
 					Solid = true,
 					Activated = function()
-						props.App:disconnect()
+						props.App:disconnect(true)
 						props.App:home()
 					end,
 				},

@@ -148,7 +148,11 @@ function Core:stop()
 
 	self.watcher:stop()
 
-	if self.client.isSubscribed then
+	-- WebSocket transport: close() is synchronous and stops the reconnect loop,
+	-- preventing orphaned WebSocket objects from outliving the Core.
+	if self.client.close then
+		self.client:close()
+	elseif self.client.isSubscribed then
 		task.spawn(function()
 			self.client:unsubscribe():catch(function(err)
 				Log.debug("Failed to unsubscribe from the server", err)

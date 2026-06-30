@@ -118,9 +118,9 @@ function WebSocket:_connectAndSubscribe(): Promise.Promise
 			clientId = self.clientId,
 			name = self.placeName,
 		})
-		Log.warn("WS sending subscribe id=" .. tostring(id) .. " len=" .. tostring(#frame))
+		Log.debug("WS sending subscribe id=" .. tostring(id) .. " len=" .. tostring(#frame))
 		ws:Send(frame)
-		Log.warn("WS subscribe sent")
+		Log.debug("WS subscribe sent")
 	end)
 end
 
@@ -184,7 +184,7 @@ function WebSocket:_onClose()
 	-- Unexpected drop: only start one reconnect chain; recursive attempts handle the rest.
 	if not self._reconnecting then
 		self._reconnecting = true
-		Log.warn("WS connection lost, reconnecting...")
+		Log.debug("WS connection lost, reconnecting...")
 		task.spawn(function()
 			self:_reconnect(0)
 		end)
@@ -230,7 +230,7 @@ function WebSocket:_reconnect(attempt: number)
 		Log.debug("WS reconnected successfully")
 		-- Push waiters are still in _pushWaiters; they will resolve on next push
 	else
-		Log.warn("WS reconnect failed:", tostring(reconnErr))
+		Log.debug("WS reconnect failed:", tostring(reconnErr))
 		self:_reconnect(attempt + 1)
 	end
 end
@@ -289,11 +289,33 @@ function WebSocket:subscribe(): Promise.Promise
 	end)
 end
 
+-- Synchronously stops the reconnect loop and drains any pending read() waiters.
+-- Called by Core:stop() so the WebSocket can't outlive the Core that owns it.
+function WebSocket:close()
+	self._gracefulClose = true
+	self.isSubscribed = false
+
+	if self._connected then
+		-- _onClose() will fire and drain _pushWaiters via the graceful path
+		pcall(function()
+			self._ws:Disconnect()
+		end)
+	else
+		-- Already disconnected (between reconnect attempts): drain manually so
+		-- __startSyncLoop unblocks and Core.run() can resolve/reject cleanly.
+		local err = Error.new(Error.ConnectionClosed)
+		for _, waiter in self._pushWaiters do
+			waiter.reject(err)
+		end
+		self._pushWaiters = {}
+	end
+end
+
 function WebSocket:unsubscribe(): Promise.Promise
 	Log.trace("WS request: unsubscribe")
 
 	return self:_request("unsubscribe"):andThen(function()
-		self._gracefulClose = true -- prevent reconnect on the WS close that follows
+		self._gracefulClose = true
 		self.isSubscribed = false
 		pcall(function()
 			self._ws:Disconnect()
